@@ -1,4 +1,4 @@
-package ch.lou.client.Communication.Implementation.Models;
+package ch.lou.client.Library.Implementation.Models;
 
 public class User {
     private String userName;
@@ -6,18 +6,20 @@ public class User {
 
     private String serverName;
 
-    private String port;
+    private int port;
 
 
     public User() {
     }
 
-    public User(String userName, String password, String serverName, String port) {
+    public User(String userName, String password, String serverName, int port) {
         this.userName = userName;
         this.password = password;
         this.serverName = serverName;
         this.port = port;
     }
+
+
 
     public String getUserName() {
         return userName;
@@ -43,11 +45,11 @@ public class User {
         this.serverName = serverName;
     }
 
-    public String getPort() {
+    public int getPort() {
         return port;
     }
 
-    public void setPort(String port) {
+    public void setPort(int port) {
         this.port = port;
     }
 }

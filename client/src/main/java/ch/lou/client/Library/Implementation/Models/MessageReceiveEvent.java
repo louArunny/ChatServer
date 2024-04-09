@@ -1,7 +1,7 @@
-package ch.lou.client.Communication.Implementation.Models;
+package ch.lou.client.Library.Implementation.Models;
 
-import ch.lou.client.Communication.Implementation.Enums.MessageType;
-import ch.lou.client.Communication.Implementation.Interfaces.IReceiveListener;
+import ch.lou.client.Library.Implementation.Enums.MessageType;
+import ch.lou.client.Library.Implementation.Interfaces.IReceiveListener;
 import gibsso.ChatProtocol.Protocol;
 
 import java.util.ArrayList;

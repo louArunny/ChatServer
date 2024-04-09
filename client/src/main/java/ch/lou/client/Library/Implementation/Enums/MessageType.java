@@ -1,4 +1,4 @@
-package ch.lou.client.Communication.Implementation.Enums;
+package ch.lou.client.Library.Implementation.Enums;
 
 public enum MessageType {
     LOGON(1),

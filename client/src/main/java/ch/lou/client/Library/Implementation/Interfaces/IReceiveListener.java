@@ -1,6 +1,6 @@
-package ch.lou.client.Communication.Implementation.Interfaces;
+package ch.lou.client.Library.Implementation.Interfaces;
 
-import ch.lou.client.Communication.Implementation.Enums.MessageType;
+import ch.lou.client.Library.Implementation.Enums.MessageType;
 import gibsso.ChatProtocol.Protocol;
 
 public interface IReceiveListener {

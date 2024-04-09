@@ -1,0 +1,33 @@
+.list-cell {
+    -fx-padding: 10px;
+}
+
+.user-cell {
+    -fx-alignment: center-left;
+}
+
+.notification-dot {
+    -fx-fill: red;
+    -fx-stroke: red;
+    -fx-radius: 5px;
+}
+
+
+.button{
+-fx-background-color:darkblue;
+-fx-text-fill: white;
+-fx-padding: 5 10;
+fx-background-radius: 30 30 30 30;
+}
+
+.message-incoming, .message-outgoing {
+    -fx-padding: 5 10;
+    -fx-background-color: lightgrey;
+    -fx-background-radius: 10 10 10 0;
+    -fx-label-padding: 5;
+}
+
+.message-outgoing {
+    -fx-background-color: lightblue;
+    -fx-background-radius: 10 10 0 10;
+}
