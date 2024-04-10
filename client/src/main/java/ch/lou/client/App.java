@@ -15,6 +15,7 @@ public class App extends Application {
     private static Scene scene;
     private static Stage openPopUp = null;
 
+//    private static Stage parentStage = new Stage();
     public static ChatHandler chatHandler = new ChatHandler();
     @Override
     public void start(Stage stage) throws IOException {
@@ -24,6 +25,7 @@ public class App extends Application {
         scene.getStylesheets().add(getClass().getResource("chat.css").toExternalForm());
         stage.setTitle("Secret Chat");
         stage.setScene(scene);
+//        parentStage = stage;
         stage.show();
     }
 
@@ -31,12 +33,19 @@ public class App extends Application {
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setOpacity(1);
+//        stage.initOwner(parentStage);
         stage.setTitle(title);
         Scene stageScene = new Scene(loadFXML(fxml), height, width);
         stageScene.getStylesheets().add(App.class.getResource("chat.css").toExternalForm());
         stage.setScene(stageScene);
 
+//        double centerXPosition = parentStage.getX() + parentStage.getWidth() / 2d;
+//        double centerYPosition = parentStage.getY() + parentStage.getHeight() / 2d;
+//
+//        stage.setX(centerXPosition - stageScene.getWidth() / 2d);
+//        stage.setY(centerYPosition - stageScene.getHeight() / 2d);
         openPopUp = stage;
+
         stage.showAndWait();
     }
 

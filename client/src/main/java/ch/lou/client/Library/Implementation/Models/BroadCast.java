@@ -10,6 +10,10 @@ public class BroadCast extends  Chat{
         return Usernames;
     }
 
+    public BroadCast(){
+        this.setUser("Broadcast");
+    }
+
     public void setUsernames(ArrayList<String> usernames) {
         Usernames = usernames;
     }

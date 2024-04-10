@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ch.lou.client.BoradcastSelectorController"
+            prefHeight="400.0" prefWidth="600.0">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+    <left>
+        <ListView fx:id="contactListView" BorderPane.alignment="CENTER_LEFT">
+        </ListView>
+    </left>
+    <right>
+        <Button onAction="#handleSave" BorderPane.alignment="CENTER_RIGHT">Save</Button>
+    </right>
+</BorderPane>

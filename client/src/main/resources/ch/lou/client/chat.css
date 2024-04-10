@@ -12,6 +12,12 @@
     -fx-radius: 5px;
 }
 
+.delete{
+-fx-background-color:red;
+-fx-text-fill: white;
+-fx-padding: 5 10;
+fx-background-radius: 30 30 30 30;
+}
 
 .button{
 -fx-background-color:darkblue;

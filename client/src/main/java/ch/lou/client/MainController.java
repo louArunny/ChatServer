@@ -1,6 +1,7 @@
 package ch.lou.client;
 
 import ch.lou.client.Library.Implementation.Interfaces.IInvokeUIListener;
+import ch.lou.client.Library.Implementation.Models.BroadCast;
 import ch.lou.client.Library.Implementation.Models.Chat;
 import ch.lou.client.Library.Implementation.Models.ChatHandler;
 import ch.lou.client.Library.Implementation.Models.Message;
@@ -15,8 +16,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextBoundsType;
+import javafx.scene.text.*;
 
 import java.io.IOException;
 
@@ -25,7 +25,7 @@ public class MainController implements IInvokeUIListener {
     private VBox messageContainer;
 
     @FXML
-    private TextField inputField;
+    private TextArea inputField;
 
     @FXML
     private ScrollPane scrollPane;
@@ -45,6 +45,8 @@ public class MainController implements IInvokeUIListener {
     private Label lbl_selected_chat;
 
     private String selectedUserId = null;
+
+
 
     private void checkLoginStatus(){
         if(!App.chatHandler.isLoggedIn()) {
@@ -70,11 +72,25 @@ public class MainController implements IInvokeUIListener {
 
     @FXML
     protected void handleCreateBroadCast(){
-
+        try {
+            App.OpenPopUpCommand("broadcast_selector", "Login", 500, 300);
+            App.chatHandler.updateChats();
+            if(App.chatHandler.BroadCast.getUsernames().size() > 0)
+                btn_broadcast.setText("Edit Broadcast");
+            else
+                btn_broadcast.setText("Create Broadcast");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     @FXML
     protected void handleSubmit() {
         checkLoginStatus();
+    }
+
+    @FXML
+    protected void handleDelete() {
+        App.chatHandler.deleteAllMessages();
     }
     @FXML
     public void initialize() {
@@ -82,6 +98,7 @@ public class MainController implements IInvokeUIListener {
 
 //        if(App.chatHandler.isLoggedIn()){
             userList.setCellFactory(lv -> new ListCell<Chat>() {
+
                 @Override
                 protected void updateItem(Chat user, boolean empty) {
                     super.updateItem(user, empty);
@@ -123,6 +140,13 @@ public class MainController implements IInvokeUIListener {
 
                 }
             });
+            App.chatHandler.chatListView = userList;
+        // Handle user selection changes
+        userList.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            // Load the chat for the selected user
+            loadChatForUser(newSelection);
+        });
+            userList.setItems(App.chatHandler.Chats);
         App.chatHandler.InvokeUIListener = this;
         checkLoginStatus();
 //        }
@@ -140,15 +164,23 @@ public class MainController implements IInvokeUIListener {
                 messageContainer.getChildren().clear();
                 Chat chat = App.chatHandler.getChatOfMessage(selectedUserId);
                 chat.setHasUnreadNotifications(false);
-
-                userList.getItems().clear();
-                // Dummy data for users
-                userList.getItems().addAll(App.chatHandler.Chats);
+                userList.refresh();
+//                userList.getItems().clear();
+//                // Dummy data for users
+//                userList.getItems().addAll(App.chatHandler.Chats);
                 for(Message m : chat.Messages){
                     HBox messageBox = new HBox();
                     messageBox.setAlignment(m.isIncoming() ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
 
-                    Label messageLabel = new Label(m.getUserId()+ ": "+m.getMessage());
+                    Text boldText = new Text(App.chatHandler.getUserChatName(m.getUserId()));
+//                    if(boldText.getText().equals("You") && m.isIncoming())
+//                        return;
+                    boldText.setFont(Font.font("System", FontWeight.BOLD, 12));
+                    Text messageText = new Text(m.getMessage());
+                    Label messageLabel = new Label();
+                    messageLabel.setGraphic(new TextFlow(boldText, new Text("\n"), messageText));
+                    messageLabel.setWrapText(true);
+                    messageLabel.maxWidth(200);
                     messageLabel.getStyleClass().add(m.isIncoming() ? "message-incoming" : "message-outgoing");
                     messageBox.getChildren().add(messageLabel);
 
@@ -177,8 +209,11 @@ public class MainController implements IInvokeUIListener {
         String content = inputField.getText().trim();
         if (!content.isEmpty()) {
             Chat chat = App.chatHandler.getChatOfMessage(selectedUserId);
+            if(chat instanceof BroadCast)
+                content ="(Broadcast) "+content;
             Message message = new Message(App.chatHandler.getUser().getUserName(), content, false);
             App.chatHandler.sendMessage(content, chat);
+
 
             chat.Messages.add(message);
             inputField.clear();
@@ -191,12 +226,17 @@ public class MainController implements IInvokeUIListener {
         HBox messageBox = new HBox();
         messageBox.setAlignment(m.isIncoming() ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
 
-        Label messageLabel = new Label(m.getMessage());
+        Text boldText = new Text("You");
+        boldText.setFont(Font.font("System", FontWeight.BOLD, 12));
+        Text messageText = new Text(m.getMessage());
+        Label messageLabel = new Label();
+        messageLabel.setGraphic(new TextFlow(boldText, new Text("\n"), messageText));
+        messageLabel.setWrapText(true);
+        messageLabel.maxWidth(200);
         messageLabel.getStyleClass().add(m.isIncoming() ? "message-incoming" : "message-outgoing");
         messageBox.getChildren().add(messageLabel);
 
         messageContainer.getChildren().add(messageBox);
-        scrollToBottom();
     }
 
     private void scrollToBottom() {
@@ -230,15 +270,11 @@ public class MainController implements IInvokeUIListener {
         if(App.chatHandler.isLoggedIn()){
 
 
-            userList.getItems().clear();
-            // Dummy data for users
-            userList.getItems().addAll(App.chatHandler.Chats);
+//            userList.getItems().clear();
+//            // Dummy data for users
+//            userList.getItems().addAll(App.chatHandler.Chats);
 
-            // Handle user selection changes
-            userList.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-                // Load the chat for the selected user
-                loadChatForUser(newSelection);
-            });
+
 
             if(selectedUserId == null){
                 if(App.chatHandler.Chats.size() > 0)

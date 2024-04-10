@@ -6,6 +6,10 @@ import ch.lou.client.Library.Implementation.Enums.MessageType;
 import ch.lou.client.Library.Implementation.Interfaces.IInvokeUIListener;
 import ch.lou.client.Library.Implementation.Interfaces.IReceiveListener;
 import gibsso.ChatProtocol.*;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.ListView;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -17,7 +21,9 @@ import java.util.List;
 public class ChatHandler implements IReceiveListener {
 
     public List<String> OnlineUsers = new ArrayList<String>();
-    public List<Chat> Chats = new ArrayList<>();
+
+    public ListView<Chat> chatListView;
+    public ObservableList<Chat> Chats = FXCollections.observableArrayList();
 
 //    public Chat SelectedChat = new() Chat;
 
@@ -41,6 +47,7 @@ public class ChatHandler implements IReceiveListener {
         if(type == MessageType.MESSAGE_TO_CLIENT)
             updateMessages((MessageToClients) message);
     }
+
 
     private void updateChatUsers(OnlineUserList list){
         isLoggedIn = true;
@@ -69,8 +76,11 @@ public class ChatHandler implements IReceiveListener {
     private void deleteDuplicates(){
         ArrayList<Chat> toRemove = new ArrayList<>();
         for(Chat chat : Chats){
-            if(BroadCast.getUsernames().contains(chat.getUser()))
-                toRemove.add(chat);
+
+                if(BroadCast.getUsernames().contains(chat.getUser()) || chat instanceof BroadCast)
+                    toRemove.add(chat);
+
+
         }
         Chats.removeAll(toRemove);
     }
@@ -122,12 +132,21 @@ public class ChatHandler implements IReceiveListener {
         }
         Chats.removeAll(toRemove);
     }
-    private void updateChats(){
+    public void updateChats(){
         refreshBroadCast();
         refreshChats();
         deleteDuplicates();
+        handleBroadcast();
     }
 
+    public void handleBroadcast(){
+//        updateChats();
+        if(BroadCast.getUsernames().size()>0)
+            Chats.add(BroadCast);
+        else
+            BroadCast.Messages = new ArrayList<>();
+
+    }
     public User getUser() {
         return user;
     }
@@ -145,13 +164,30 @@ public class ChatHandler implements IReceiveListener {
 
     }
 
+    public void deleteAllMessages(){
+        for(Chat chat : Chats){
+            chat.Messages = new ArrayList<>();
+        }
+        InvokeUIListener.onUpdate();
+    }
+
+    public String getUserChatName(String username){
+        if(username == null || username.equals(user.getUserName()))
+            return "You";
+        return username;
+    }
+
     private void updateMessages(MessageToClients message){
         String[] arrayOfMessage = message.getMessage().split(":", 2);
         String username = arrayOfMessage[0].trim();
         String content = arrayOfMessage[1].trim();
         Message bubble = new Message(username, content, true);
-        getChatOfMessage(username).Messages.add(bubble);
-        getChatOfMessage(username).setHasUnreadNotifications(true);
+        Platform.runLater(() -> {
+            getChatOfMessage(username).Messages.add(bubble);
+            getChatOfMessage(username).setHasUnreadNotifications(true);
+            chatListView.refresh();
+        });
+
 //        Chat chat = getChatOfMessage(username);
 //        chat.Messages.add(bubble);
 //        chat.setHasUnreadNotifications(true);
@@ -161,6 +197,22 @@ public class ChatHandler implements IReceiveListener {
         InvokeUIListener.onUpdate();
     }
 
+    public List<Chat> getAllChats(){
+        List<Chat> allChats = new ArrayList<>();
+
+        for(int i = 0; i< OnlineUsers.size(); i++){
+            boolean hasChat = false;
+            for(int j = 0; j <Chats.size(); j++){
+                String onlineUser = OnlineUsers.get(i);
+                String currentChatUser = Chats.get(j).getUser();
+                if(onlineUser.equals(currentChatUser)){
+                    hasChat = true;
+                }
+            }
+            allChats.add(new Chat(OnlineUsers.get(i), null, !hasChat));
+        }
+        return allChats;
+    }
     public Chat getChatOfMessage(String username){
         Chat selectedChat = null;
         for(int i = 0; i < Chats.size(); i++){
@@ -204,7 +256,7 @@ public class ChatHandler implements IReceiveListener {
         receiver.stopChat();
         isLoggedIn = false;
         OnlineUsers = new ArrayList<>();
-        Chats = new ArrayList<>();
+        Chats.clear();
         BroadCast = new BroadCast();
         user = new User();
         return true;
